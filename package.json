@@ -1,5 +1,5 @@
 {
-  "version": "1.1.11",
+  "version": "1.1.12",
   "name": "nw-autoupdater",
   "description": "Library provides low-level API to control NW.js app auto-updates",
   "keywords": [
@@ -20,7 +20,7 @@
     "debounce": "^1.0.0",
     "decompress": "^4.0.0",
     "decompress-targz": "^4.0.0",
-    "decompress-zip": "^0.3.0",
+    "decompress-zip": "git://github.com:transit-engineering/decompress-zip.git#99fee597f97f65c7ba96d3b30514267821da1c9a",
     "fs-extra": "^7.0.1",
     "semver": "^5.3.0"
   }
