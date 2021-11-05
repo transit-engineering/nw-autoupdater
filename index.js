@@ -174,4 +174,4 @@ class AutoUpdater extends EventEmitter {
   }
 }
 
-module.exports = AutoUpdater;
+module.exports = {AtuoUpdater: AutoUpdater};
