@@ -17,7 +17,8 @@ const IS_WIN = /^win/.test( process.platform );
  * UPDATE_DIR = /tmp/nw-autoupdate/*.*
  */
 
-const OSX_APP_DIR = IS_OSX ? process.execPath.match( /^([^\0]+?\.app)\// )[ 1 ] : null;
+const APP_PATH = process.execPath.match( /^([^\0]+?\.app)\// ) || [null, null];
+const OSX_APP_DIR = IS_OSX ? APP_PATH[ 1 ] : null;
 
 // Directory where the app executable resides
 const EXEC_DIR = IS_OSX ?
