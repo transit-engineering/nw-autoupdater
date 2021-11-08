@@ -20,13 +20,18 @@ function getFilename( uri ){
  * @param {string} uri
  * @returns {Promise}
  */
-function request( uri ){
-  const driver = url.parse( uri ).protocol === "https:" ? https : http;
+
+
+
+function request( uri, opts={} ){
+  const parsedUrl = url.parse( uri );
+  const driver = parsedUrl.protocol === "https:" ? https : http;
+  const reqOpts = Object.assign( opts, parsedUrl );
+  console.log("reqOpts", reqOpts)
   return new Promise(( resolve, reject ) => {
-   return driver.get( uri, ( res ) => {
+   return driver.get( reqOpts, ( res ) => {
       const statusCode = res.statusCode;
       let error = false;
-      
       // handle redirect
       if (statusCode > 300 && statusCode < 400 && res.headers.location) {
         const redirectUri = res.headers.location;
@@ -37,12 +42,10 @@ function request( uri ){
             (e) => {reject(e)}
           );
       }
-    
       if ( statusCode !== 200 ) {
         error = new Error( `Request Failed (${uri}).\n` +
                            `Status Code: ${statusCode}` );
       }
-
       if ( error ) {
         // consume response data to free up memory
         res.resume();
@@ -60,8 +63,8 @@ function request( uri ){
  * @param {string} uri
  * @returns {Promise}
  */
-async function readJson( uri ){
-  const res = await request( uri );
+async function readJson( uri, opts ={headers: {"Accept": "application/json"}}){
+  const res = await request( uri, opts );
   return new Promise(( resolve, reject ) => {
     contentType = res.headers[ "content-type" ];
     let rawData = "";
@@ -91,8 +94,8 @@ async function readJson( uri ){
  * @param {function} onProgress
  * @returns {Promise}
  */
-async function download( srcUri, targetDir, onProgress ){
-  const res = await request( srcUri ),
+async function download( srcUri, targetDir, onProgress, opts={} ){
+  const res = await request( srcUri, opts ),
         filename = getFilename( srcUri ),
         filepath = join( targetDir, filename );
   return new Promise(( resolve, reject ) => {
@@ -111,3 +114,4 @@ async function download( srcUri, targetDir, onProgress ){
 
 exports.readJson = readJson;
 exports.download = download;
+exports.request = request;
