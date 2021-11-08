@@ -27,7 +27,6 @@ function request( uri, opts={} ){
   const parsedUrl = url.parse( uri );
   const driver = parsedUrl.protocol === "https:" ? https : http;
   const reqOpts = Object.assign( opts, parsedUrl );
-  console.log("reqOpts", reqOpts)
   return new Promise(( resolve, reject ) => {
    return driver.get( reqOpts, ( res ) => {
       const statusCode = res.statusCode;
@@ -66,7 +65,7 @@ function request( uri, opts={} ){
 async function readJson( uri, opts ={headers: {"Accept": "application/json"}}){
   const res = await request( uri, opts );
   return new Promise(( resolve, reject ) => {
-    contentType = res.headers[ "content-type" ];
+    const contentType = res.headers[ "content-type" ];
     let rawData = "";
     if ( !/^application\/json/.test( contentType ) ) {
       return reject( new Error( `Invalid content-type (${uri}).\n` +
