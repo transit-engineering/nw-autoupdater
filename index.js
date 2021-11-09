@@ -41,8 +41,8 @@ class AutoUpdater extends EventEmitter {
     super();
 
     this.manifest = manifest;
-    if ( !this.manifest.manifestUrl ) {
-      throw new Error( `Manifest must contain manifestUrl field` );
+    if ( !options.url ) {
+      throw new Error( `options must contain url field` );
     }
 
     this.release = "";
@@ -60,11 +60,12 @@ class AutoUpdater extends EventEmitter {
    * Read package.json from the release server
    * @returns {Promise<JSON>}
    */
-  async readRemoteManifest(){
+  async readRemoteManifest(opts){
+    const url = this.options.url + 'package.json';
     try {
-      return await readJson( this.manifest.manifestUrl );
+      return await readJson(url , opts );
     } catch ( e ) {
-      throw new Error( `Cannot read remote manifest from ${this.manifest.manifestUrl}` );
+      throw new Error( `Cannot read remote manifest from ${url}` );
     }
   }
   /**
@@ -73,7 +74,7 @@ class AutoUpdater extends EventEmitter {
    * @returns {Promise<boolean>}
    */
   async checkNewVersion( remoteManifest ){
-    if ( !remoteManifest || !remoteManifest.packages ){
+    if ( !remoteManifest || !remoteManifest["artifact-file"]){
       throw new TypeError( ERR_INVALID_REMOTE_MANIFEST );
     }
     return semver.gt( remoteManifest.version, this.manifest.version );
@@ -84,22 +85,28 @@ class AutoUpdater extends EventEmitter {
    * @param {Object} options
    * @returns {Promise<string>}
    */
-  async download( remoteManifest, { debounceTime } = { debounceTime: DEBOUNCE_TIME }){
-    if ( !remoteManifest || !remoteManifest.packages ){
+  async download(
+    remoteManifest,
+    { debounceTime } = { debounceTime: DEBOUNCE_TIME },
+    opts
+  ){
+    if ( !remoteManifest || !remoteManifest["artifact-file"] ){
       throw new TypeError( ERR_INVALID_REMOTE_MANIFEST );
     }
-    const release = remoteManifest.packages[ PLATFORM_FULL ];
-    if ( !release ) {
-      throw new Error( `No release matches the platfrom ${PLATFORM_FULL}` );
-    }
+    const artifactUrl = this.options.url + remoteManifest["artifact-file"];
     const onProgress = ( length ) => {
-      this.emit( "download", length, release.size );
+      this.emit( "download", length);
     };
     try {
       remove( this.options.updateDir );
-      return await download( release.url, os.tmpdir(), debounce( onProgress, debounceTime ));
+      return await download(
+        artifactUrl,
+        os.tmpdir(),
+        debounce( onProgress, debounceTime ),
+        opts
+      );
     } catch ( e ) {
-      throw new Error( `Cannot download package from ${release.url}` );
+      throw new Error( `Cannot download package from ${artifactUrl}` );
     }
   }
   /**
