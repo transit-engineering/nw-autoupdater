@@ -41,9 +41,6 @@ class AutoUpdater extends EventEmitter {
     super();
 
     this.manifest = manifest;
-    if ( !options.url ) {
-      throw new Error( `options must contain url field` );
-    }
 
     this.release = "";
     this.argv = nw.App.argv;
@@ -54,6 +51,12 @@ class AutoUpdater extends EventEmitter {
     this.options.executable = this.options.executable || getExecutable( manifest.name );
     // Mixing up a chosen strategy
     Object.assign( this, this.options.strategy === "ScriptSwap" ? ScriptSwapStrategy : AppSwapStrategy );
+    if (this.options.debug){
+      console.log("[nwautoupdater]   Paths",
+                  { PLATFORM_FULL, swapFactory, getExecutable, UPDATE_DIR, EXEC_DIR, BACKUP_DIR, LOG_PATH });
+      console.log("[nwautoupdater]   Options",
+                  this.options);
+    }
 
   }
   /**
@@ -87,9 +90,9 @@ class AutoUpdater extends EventEmitter {
    */
   async download(
     remoteManifest,
-    { debounceTime } = { debounceTime: DEBOUNCE_TIME },
-    opts
+    opts = { debounceTime: DEBOUNCE_TIME },
   ){
+    const { debounceTime } = opts;
     if ( !remoteManifest || !remoteManifest["artifact-file"] ){
       throw new TypeError( ERR_INVALID_REMOTE_MANIFEST );
     }
@@ -127,6 +130,10 @@ class AutoUpdater extends EventEmitter {
       throw new Error( "You have to call first download method" );
     }
 
+    if(this.options.debug){
+      console.log("[nwautoupdater]    Unpack", updateFile, updateDir)
+    }
+
     switch( true ) {
       case isGzRe.test( updateFile ):
          try {
@@ -158,27 +165,6 @@ class AutoUpdater extends EventEmitter {
     return updateDir;
   }
 
-  /**
-   * @deprecated since v.1.1.0
-   * @returns {Boolean}
-   */
-  isSwapRequest(){
-    return false;
-  }
-  /**
-   * @deprecated since v.1.1.0
-   * @returns {Boolean}
-   */
-  async swap(){
-    return false;
-  }
-  /**
-   * @deprecated since v.1.1.0
-   * @returns {Boolean}
-   */
-  async restart(){
-    return false;
-  }
 }
 
 module.exports = {AutoUpdater: AutoUpdater};
