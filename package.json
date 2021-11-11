@@ -20,8 +20,8 @@
     "debounce": "^1.0.0",
     "decompress": "^4.0.0",
     "decompress-targz": "^4.0.0",
-    "decompress-zip": "github:transit-engineering/decompress-zip",
-    "fs-extra": "^7.0.1",
+    "decompress-zip": "github:transit-engineering/decompress-zip#6c3199b9942588604c688f899715336ff9412fbf",
+    "fs-extra": "github:transit-engineering/node-fs-extra#777cec5e88a4c6f7614a810e0cd1190f95bc67a2",
     "semver": "^5.3.0"
   }
 }
